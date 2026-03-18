@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docs: JS Moderno + jQuery</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --border: #1f2433;
+    --accent-js: #f7df1e;
+    --accent-jq: #0769ad;
+    --accent-jq-light: #21a6e0;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --code-bg: #0a0c10;
+    --green: #4ade80;
+    --orange: #fb923c;
+    --pink: #f472b6;
+    --purple: #a78bfa;
+    --red: #f87171;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  .topnav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,15,20,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 2rem;
+    height: 56px;
+  }
+
+  .brand {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-right: 2rem;
+    white-space: nowrap;
+    color: var(--text);
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0 1.2rem;
+    height: 56px;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active-js { color: var(--accent-js); border-bottom-color: var(--accent-js); }
+  .tab-btn.active-jq { color: var(--accent-jq-light); border-bottom-color: var(--accent-jq-light); }
+
+  /* LAYOUT */
+  .layout {
+    display: flex;
+    max-width: 1280px;
+    margin: 0 auto;
+    gap: 0;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 56px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+    padding: 1.5rem 1rem;
+    border-right: 1px solid var(--border);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .sidebar-section { margin-bottom: 1.5rem; }
+
+  .sidebar-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+  }
+
+  .sidebar a {
+    display: block;
+    padding: 0.38rem 0.75rem;
+    border-radius: 6px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 400;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+
+  .sidebar a:hover { color: var(--text); background: var(--border); }
+  .js-active-link { color: var(--accent-js) !important; background: rgba(247,223,30,0.08) !important; }
+  .jq-active-link { color: var(--accent-jq-light) !important; background: rgba(33,166,224,0.08) !important; }
+
+  /* CONTENT */
+  .content {
+    flex: 1;
+    padding: 2.5rem 3rem;
+    min-width: 0;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* HERO */
+  .hero {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    margin-bottom: 1rem;
+  }
+
+  .badge-js { background: rgba(247,223,30,0.15); color: var(--accent-js); border: 1px solid rgba(247,223,30,0.3); }
+  .badge-jq { background: rgba(7,105,173,0.2); color: var(--accent-jq-light); border: 1px solid rgba(33,166,224,0.3); }
+
+  .hero h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.8rem;
+  }
+
+  .hero p { font-size: 1.05rem; color: var(--muted); max-width: 600px; line-height: 1.7; }
+
+  /* SECTIONS */
+  .section {
+    margin-bottom: 3rem;
+    scroll-margin-top: 80px;
+  }
+
+  .section-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 1.2em;
+    border-radius: 2px;
+  }
+
+  .js-section .section-title::before { background: var(--accent-js); }
+  .jq-section .section-title::before { background: var(--accent-jq-light); }
+
+  .section-desc { color: var(--muted); margin-bottom: 1.2rem; line-height: 1.7; font-size: 0.95rem; }
+
+  /* CARDS */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 1.2rem; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: #2d3348; }
+
+  .card-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.8rem;
+  }
+
+  .js-card .card-title { color: var(--accent-js); }
+  .jq-card .card-title { color: var(--accent-jq-light); }
+
+  /* CODE */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+    overflow-x: auto;
+    margin: 0.6rem 0 1rem;
+    scrollbar-width: thin;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+  }
+
+  p > code, li > code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+    font-size: 0.82em;
+    color: var(--orange);
+  }
+
+  .kw { color: var(--purple); }
+  .fn { color: #60a5fa; }
+  .str { color: var(--green); }
+  .cm { color: #475569; font-style: italic; }
+  .num { color: var(--orange); }
+  .met { color: var(--pink); }
+  .sel { color: var(--accent-jq-light); }
+
+  /* TABLE */
+  .tbl-wrap { overflow-x: auto; margin: 0.8rem 0 1.4rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+  th { background: var(--surface); color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.6rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* NOTE */
+  .note {
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    border-left: 3px solid;
+  }
+
+  .note-tip { background: rgba(74,222,128,0.07); border-color: var(--green); color: #86efac; }
+  .note-warn { background: rgba(251,146,60,0.07); border-color: var(--orange); color: #fdba74; }
+  .note-info { background: rgba(96,165,250,0.07); border-color: #60a5fa; color: #93c5fd; }
+
+  .note strong { font-weight: 700; }
+
+  /* DIVIDER */
+  hr.section-sep { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+  /* BADGE inline */
+  .tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-left: 0.4rem;
+  }
+
+  .tag-new { background: rgba(74,222,128,0.15); color: var(--green); border: 1px solid rgba(74,222,128,0.3); }
+  .tag-es6 { background: rgba(247,223,30,0.1); color: var(--accent-js); border: 1px solid rgba(247,223,30,0.2); }
+  .tag-ajax { background: rgba(33,166,224,0.1); color: var(--accent-jq-light); border: 1px solid rgba(33,166,224,0.2); }
+
+  ul.list { padding-left: 1.4rem; line-height: 1.9; color: var(--muted); font-size: 0.93rem; }
+  ul.list li { margin-bottom: 0.2rem; }
+  ul.list li strong { color: var(--text); }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .content { padding: 1.5rem; }
+    .hero h1 { font-size: 2rem; }
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topnav">
+  <div class="brand">⚡ Dev Docs</div>
+  <button class="tab-btn active-js" onclick="switchTab('js')">JavaScript Moderno</button>
+  <button class="tab-btn" onclick="switchTab('jq')">jQuery</button>
+</nav>
+
+<div class="layout">
+  <!-- SIDEBAR JS -->
+  <aside class="sidebar" id="sidebar-js">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Fundamentos</div>
+      <a href="#variaveis">Variáveis</a>
+      <a href="#tipos">Tipos de Dados</a>
+      <a href="#operadores">Operadores</a>
+      <a href="#condicionais">Condicionais</a>
+      <a href="#loops">Loops</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Funções</div>
+      <a href="#funcoes">Funções</a>
+      <a href="#arrow">Arrow Functions</a>
+      <a href="#escopo">Escopo & Closures</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Estruturas</div>
+      <a href="#arrays">Arrays</a>
+      <a href="#objetos">Objetos</a>
+      <a href="#desestruturacao">Desestruturação</a>
+      <a href="#spread">Spread & Rest</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Assíncrono</div>
+      <a href="#promises">Promises</a>
+      <a href="#async">Async / Await</a>
+      <a href="#fetch">Fetch API</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">DOM & ES6+</div>
+      <a href="#dom">Manipulação DOM</a>
+      <a href="#eventos">Eventos</a>
+      <a href="#modulos">Módulos</a>
+      <a href="#classes">Classes</a>
+    </div>
+  </aside>
+
+  <!-- SIDEBAR JQ -->
+  <aside class="sidebar" id="sidebar-jq" style="display:none">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Início</div>
+      <a href="#jq-intro">O que é jQuery</a>
+      <a href="#jq-selectors">Seletores</a>
+      <a href="#jq-traversal">Traversal</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">DOM</div>
+      <a href="#jq-dom">Manipulação DOM</a>
+      <a href="#jq-css">CSS & Classes</a>
+      <a href="#jq-attr">Atributos</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Eventos</div>
+      <a href="#jq-eventos">Eventos</a>
+      <a href="#jq-on">Delegação (.on)</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">AJAX</div>
+      <a href="#jq-ajax">$.ajax()</a>
+      <a href="#jq-get-post">$.get / $.post</a>
+      <a href="#jq-json">$.getJSON</a>
+      <a href="#jq-ajaxsetup">ajaxSetup</a>
+      <a href="#jq-deferred">Deferred / Promise</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Utilitários</div>
+      <a href="#jq-each">$.each</a>
+      <a href="#jq-utils">Utilities</a>
+      <a href="#jq-plugins">Plugins</a>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- ===== JS PAGE ===== -->
+    <div class="page active" id="page-js">
+      <div class="hero">
+        <div class="hero-badge badge-js">Documentação</div>
+        <h1>JavaScript Moderno</h1>
+        <p>Referência rápida de ES6+ para você entender a base antes de mergulhar no jQuery. Do zero ao assíncrono.</p>
+      </div>
+
+      <!-- VARIÁVEIS -->
+      <div class="section js-section" id="variaveis">
+        <div class="section-title">Variáveis</div>
+        <p class="section-desc">Use <code>const</code> por padrão. Use <code>let</code> quando precisar reatribuir. Evite <code>var</code>.</p>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">const / let / var</div>
+            <pre><code><span class="kw">const</span> nome = <span class="str">"Ana"</span>;        <span class="cm">// imutável (referência)</span>
+<span class="kw">let</span>   contador = <span class="num">0</span>;     <span class="cm">// pode ser reatribuído</span>
+<span class="kw">var</span>   legado = <span class="str">"evitar"</span>; <span class="cm">// escopo de função, hoisting</span>
+
+contador++;              <span class="cm">// OK</span>
+<span class="cm">// nome = "Pedro";     → TypeError</span></code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">Template Literals <span class="tag tag-es6">ES6</span></div>
+            <pre><code><span class="kw">const</span> idade = <span class="num">25</span>;
+<span class="kw">const</span> msg = <span class="str">`Olá, tenho <span class="kw">${</span>idade<span class="kw">}</span> anos`</span>;
+
+<span class="cm">// Multilinha</span>
+<span class="kw">const</span> html = <span class="str">`
+  &lt;div&gt;
+    &lt;p&gt;<span class="kw">${</span>msg<span class="kw">}</span>&lt;/p&gt;
+  &lt;/div&gt;
+`</span>;</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- TIPOS -->
+      <div class="section js-section" id="tipos">
+        <div class="section-title">Tipos de Dados</div>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Tipo</th><th>Exemplo</th><th>Nota</th></tr>
+            <tr><td><code>string</code></td><td><code>"texto"</code> / <code>'texto'</code> / <code>`texto`</code></td><td>Use template literals para interpolação</td></tr>
+            <tr><td><code>number</code></td><td><code>42</code> / <code>3.14</code> / <code>NaN</code></td><td><code>NaN</code> é do tipo number</td></tr>
+            <tr><td><code>boolean</code></td><td><code>true</code> / <code>false</code></td><td>—</td></tr>
+            <tr><td><code>null</code></td><td><code>null</code></td><td>Ausência intencional de valor</td></tr>
+            <tr><td><code>undefined</code></td><td><code>undefined</code></td><td>Variável declarada mas não inicializada</td></tr>
+            <tr><td><code>object</code></td><td><code>{ chave: valor }</code></td><td>Arrays também são objects</td></tr>
+            <tr><td><code>array</code></td><td><code>[1, 2, 3]</code></td><td>Verificar com <code>Array.isArray()</code></td></tr>
+            <tr><td><code>symbol</code></td><td><code>Symbol('id')</code></td><td>Identificador único</td></tr>
+          </table>
+        </div>
+        <pre><code><span class="cm">// Verificar tipos</span>
+<span class="kw">typeof</span> <span class="str">"texto"</span>        <span class="cm">// "string"</span>
+<span class="kw">typeof</span> <span class="num">42</span>            <span class="cm">// "number"</span>
+<span class="kw">typeof</span> <span class="kw">true</span>          <span class="cm">// "boolean"</span>
+<span class="kw">typeof</span> <span class="kw">null</span>          <span class="cm">// "object" ← bug histórico do JS!</span>
+<span class="kw">typeof</span> []            <span class="cm">// "object"</span>
+Array.<span class="fn">isArray</span>([])   <span class="cm">// true</span>
+
+<span class="cm">// Conversões</span>
+<span class="fn">Number</span>(<span class="str">"42"</span>)         <span class="cm">// 42</span>
+<span class="fn">String</span>(<span class="num">42</span>)          <span class="cm">// "42"</span>
+<span class="fn">Boolean</span>(<span class="num">0</span>)          <span class="cm">// false — valores "falsy": 0, "", null, undefined, NaN</span></code></pre>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- OPERADORES -->
+      <div class="section js-section" id="operadores">
+        <div class="section-title">Operadores Importantes</div>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">Igualdade</div>
+            <pre><code><span class="cm">// == compara com coerção (evite)</span>
+<span class="num">0</span> == <span class="str">""</span>     <span class="cm">// true  ← perigoso!</span>
+
+<span class="cm">// === compara sem coerção (prefira)</span>
+<span class="num">0</span> === <span class="str">""</span>    <span class="cm">// false ✓</span>
+<span class="num">1</span> === <span class="num">1</span>     <span class="cm">// true</span>
+<span class="str">"a"</span> !== <span class="str">"b"</span><span class="cm">// true</span></code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">Nullish & Optional Chaining <span class="tag tag-new">ES2020</span></div>
+            <pre><code><span class="cm">// Nullish coalescing ??</span>
+<span class="kw">const</span> x = <span class="kw">null</span> ?? <span class="str">"padrão"</span>; <span class="cm">// "padrão"</span>
+<span class="kw">const</span> y = <span class="num">0</span>    ?? <span class="str">"padrão"</span>; <span class="cm">// 0 (≠ ||)</span>
+
+<span class="cm">// Optional chaining ?.</span>
+<span class="kw">const</span> cidade = user?.<span class="met">endereco</span>?.cidade;
+<span class="cm">// undefined em vez de erro se user for null</span></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- CONDICIONAIS -->
+      <div class="section js-section" id="condicionais">
+        <div class="section-title">Condicionais</div>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">if / else / ternário</div>
+            <pre><code><span class="kw">if</span> (idade >= <span class="num">18</span>) {
+  console.<span class="fn">log</span>(<span class="str">"maior"</span>);
+} <span class="kw">else if</span> (idade >= <span class="num">12</span>) {
+  console.<span class="fn">log</span>(<span class="str">"adolescente"</span>);
+} <span class="kw">else</span> {
+  console.<span class="fn">log</span>(<span class="str">"criança"</span>);
+}
+
+<span class="cm">// Ternário</span>
+<span class="kw">const</span> msg = idade >= <span class="num">18</span> ? <span class="str">"adulto"</span> : <span class="str">"menor"</span>;</code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">switch</div>
+            <pre><code><span class="kw">switch</span> (status) {
+  <span class="kw">case</span> <span class="num">200</span>:
+    console.<span class="fn">log</span>(<span class="str">"OK"</span>);
+    <span class="kw">break</span>;
+  <span class="kw">case</span> <span class="num">404</span>:
+    console.<span class="fn">log</span>(<span class="str">"Não encontrado"</span>);
+    <span class="kw">break</span>;
+  <span class="kw">default</span>:
+    console.<span class="fn">log</span>(<span class="str">"Outro"</span>);
+}</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- LOOPS -->
+      <div class="section js-section" id="loops">
+        <div class="section-title">Loops</div>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">for / while</div>
+            <pre><code><span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i < <span class="num">5</span>; i++) {
+  console.<span class="fn">log</span>(i);
+}
+
+<span class="kw">let</span> n = <span class="num">0</span>;
+<span class="kw">while</span> (n < <span class="num">3</span>) { n++; }</code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">for...of / for...in <span class="tag tag-es6">ES6</span></div>
+            <pre><code><span class="cm">// for...of → valores (arrays, strings)</span>
+<span class="kw">for</span> (<span class="kw">const</span> item <span class="kw">of</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]) {
+  console.<span class="fn">log</span>(item);
+}
+
+<span class="cm">// for...in → chaves de objetos</span>
+<span class="kw">const</span> obj = { a: <span class="num">1</span>, b: <span class="num">2</span> };
+<span class="kw">for</span> (<span class="kw">const</span> chave <span class="kw">in</span> obj) {
+  console.<span class="fn">log</span>(chave, obj[chave]);
+}</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- FUNÇÕES -->
+      <div class="section js-section" id="funcoes">
+        <div class="section-title">Funções</div>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">Declaração vs Expressão</div>
+            <pre><code><span class="cm">// Declaração (hoisted)</span>
+<span class="kw">function</span> <span class="fn">somar</span>(a, b) {
+  <span class="kw">return</span> a + b;
+}
+
+<span class="cm">// Expressão (não hoisted)</span>
+<span class="kw">const</span> <span class="fn">somar</span> = <span class="kw">function</span>(a, b) {
+  <span class="kw">return</span> a + b;
+};</code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">Parâmetros Padrão & Rest <span class="tag tag-es6">ES6</span></div>
+            <pre><code><span class="cm">// Valor padrão</span>
+<span class="kw">function</span> <span class="fn">cumprimentar</span>(nome = <span class="str">"visitante"</span>) {
+  <span class="kw">return</span> <span class="str">`Olá, <span class="kw">${</span>nome<span class="kw">}</span>`</span>;
+}
+
+<span class="cm">// Rest params (vira array)</span>
+<span class="kw">function</span> <span class="fn">somar</span>(...nums) {
+  <span class="kw">return</span> nums.<span class="met">reduce</span>((acc, n) => acc + n, <span class="num">0</span>);
+}
+<span class="fn">somar</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>); <span class="cm">// 6</span></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- ARROW -->
+      <div class="section js-section" id="arrow">
+        <div class="section-title">Arrow Functions <span class="tag tag-es6">ES6</span></div>
+        <p class="section-desc">Sintaxe curta e <code>this</code> léxico — herda o <code>this</code> do contexto onde foi criada.</p>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">Sintaxe</div>
+            <pre><code><span class="cm">// Corpo de expressão (return implícito)</span>
+<span class="kw">const</span> dobrar = n => n * <span class="num">2</span>;
+
+<span class="cm">// Múltiplos parâmetros</span>
+<span class="kw">const</span> somar = (a, b) => a + b;
+
+<span class="cm">// Corpo de bloco</span>
+<span class="kw">const</span> calcular = (a, b) => {
+  <span class="kw">const</span> resultado = a * b;
+  <span class="kw">return</span> resultado;
+};
+
+<span class="cm">// Retornar objeto literal</span>
+<span class="kw">const</span> criar = nome => ({ nome, ativo: <span class="kw">true</span> });</code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">this léxico</div>
+            <pre><code><span class="kw">class</span> Timer {
+  <span class="fn">constructor</span>() {
+    <span class="kw">this</span>.seg = <span class="num">0</span>;
+  }
+  <span class="fn">iniciar</span>() {
+    <span class="cm">// Arrow herda o `this` da classe</span>
+    <span class="fn">setInterval</span>(() => {
+      <span class="kw">this</span>.seg++;
+      console.<span class="fn">log</span>(<span class="kw">this</span>.seg);
+    }, <span class="num">1000</span>);
+  }
+}</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- ESCOPO -->
+      <div class="section js-section" id="escopo">
+        <div class="section-title">Escopo & Closures</div>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">Escopo de Bloco</div>
+            <pre><code>{
+  <span class="kw">let</span> x = <span class="num">10</span>;    <span class="cm">// só existe aqui</span>
+  <span class="kw">const</span> y = <span class="num">20</span>;  <span class="cm">// só existe aqui</span>
+}
+<span class="cm">// console.log(x) → ReferenceError</span></code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">Closure</div>
+            <pre><code><span class="kw">function</span> <span class="fn">criarContador</span>() {
+  <span class="kw">let</span> count = <span class="num">0</span>;
+  <span class="kw">return</span> () => ++count; <span class="cm">// "fecha" sobre count</span>
+}
+
+<span class="kw">const</span> contar = <span class="fn">criarContador</span>();
+<span class="fn">contar</span>(); <span class="cm">// 1</span>
+<span class="fn">contar</span>(); <span class="cm">// 2</span>
+<span class="fn">contar</span>(); <span class="cm">// 3</span></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- ARRAYS -->
+      <div class="section js-section" id="arrays">
+        <div class="section-title">Arrays & Métodos Essenciais</div>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Método</th><th>O que faz</th><th>Retorna</th></tr>
+            <tr><td><code>.map(fn)</code></td><td>Transforma cada elemento</td><td>Novo array</td></tr>
+            <tr><td><code>.filter(fn)</code></td><td>Filtra por condição</td><td>Novo array</td></tr>
+            <tr><td><code>.reduce(fn, init)</code></td><td>Acumula em um único valor</td><td>Qualquer tipo</td></tr>
+            <tr><td><code>.find(fn)</code></td><td>Primeiro elemento que satisfaz</td><td>Elemento ou undefined</td></tr>
+            <tr><td><code>.findIndex(fn)</code></td><td>Índice do primeiro que satisfaz</td><td>number</td></tr>
+            <tr><td><code>.some(fn)</code></td><td>Ao menos um satisfaz?</td><td>boolean</td></tr>
+            <tr><td><code>.every(fn)</code></td><td>Todos satisfazem?</td><td>boolean</td></tr>
+            <tr><td><code>.forEach(fn)</code></td><td>Itera sem retorno</td><td>undefined</td></tr>
+            <tr><td><code>.flat(n)</code></td><td>Achata arrays aninhados</td><td>Novo array</td></tr>
+            <tr><td><code>.includes(v)</code></td><td>Contém o valor?</td><td>boolean</td></tr>
+            <tr><td><code>.push / .pop</code></td><td>Adiciona/remove do fim</td><td>length / elemento</td></tr>
+            <tr><td><code>.shift / .unshift</code></td><td>Remove/adiciona no início</td><td>—</td></tr>
+            <tr><td><code>.splice(i, n)</code></td><td>Remove/insere no meio</td><td>Removidos</td></tr>
+            <tr><td><code>.slice(i, j)</code></td><td>Copia parte do array</td><td>Novo array</td></tr>
+          </table>
+        </div>
+        <pre><code><span class="kw">const</span> nums = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>];
+
+<span class="cm">// map → transformar</span>
+nums.<span class="met">map</span>(n => n * <span class="num">2</span>);              <span class="cm">// [2, 4, 6, 8, 10]</span>
+
+<span class="cm">// filter → filtrar</span>
+nums.<span class="met">filter</span>(n => n % <span class="num">2</span> === <span class="num">0</span>);    <span class="cm">// [2, 4]</span>
+
+<span class="cm">// reduce → acumular</span>
+nums.<span class="met">reduce</span>((acc, n) => acc + n, <span class="num">0</span>); <span class="cm">// 15</span>
+
+<span class="cm">// Encadeamento</span>
+nums
+  .<span class="met">filter</span>(n => n > <span class="num">2</span>)
+  .<span class="met">map</span>(n => n * <span class="num">10</span>);              <span class="cm">// [30, 40, 50]</span></code></pre>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- OBJETOS -->
+      <div class="section js-section" id="objetos">
+        <div class="section-title">Objetos</div>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">Shorthand & Computed <span class="tag tag-es6">ES6</span></div>
+            <pre><code><span class="kw">const</span> nome = <span class="str">"João"</span>, idade = <span class="num">30</span>;
+
+<span class="cm">// Shorthand properties</span>
+<span class="kw">const</span> pessoa = { nome, idade };
+<span class="cm">// { nome: "João", idade: 30 }</span>
+
+<span class="cm">// Computed property keys</span>
+<span class="kw">const</span> campo = <span class="str">"email"</span>;
+<span class="kw">const</span> obj = { [campo]: <span class="str">"a@b.com"</span> };
+<span class="cm">// { email: "a@b.com" }</span></code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">Object Methods</div>
+            <pre><code><span class="kw">const</span> obj = { a: <span class="num">1</span>, b: <span class="num">2</span>, c: <span class="num">3</span> };
+
+Object.<span class="fn">keys</span>(obj)     <span class="cm">// ["a","b","c"]</span>
+Object.<span class="fn">values</span>(obj)   <span class="cm">// [1, 2, 3]</span>
+Object.<span class="fn">entries</span>(obj)  <span class="cm">// [["a",1],["b",2],["c",3]]</span>
+
+<span class="cm">// Merge / clonar</span>
+<span class="kw">const</span> clone = { ...obj };
+<span class="kw">const</span> merged = { ...obj, d: <span class="num">4</span> };</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- DESESTRUTURAÇÃO -->
+      <div class="section js-section" id="desestruturacao">
+        <div class="section-title">Desestruturação <span class="tag tag-es6">ES6</span></div>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">Array</div>
+            <pre><code><span class="kw">const</span> [a, b, c] = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+<span class="cm">// a=1, b=2, c=3</span>
+
+<span class="cm">// Pular elementos</span>
+<span class="kw">const</span> [primeiro, , terceiro] = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>];
+
+<span class="cm">// Swap</span>
+<span class="kw">let</span> x = <span class="num">1</span>, y = <span class="num">2</span>;
+[x, y] = [y, x];</code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">Objeto</div>
+            <pre><code><span class="kw">const</span> { nome, idade, cidade = <span class="str">"SP"</span> } = pessoa;
+<span class="cm">// cidade tem valor padrão se ausente</span>
+
+<span class="cm">// Renomear</span>
+<span class="kw">const</span> { nome: nomeUsuario } = pessoa;
+
+<span class="cm">// Em parâmetros de função</span>
+<span class="kw">function</span> <span class="fn">exibir</span>({ nome, idade }) {
+  console.<span class="fn">log</span>(<span class="str">`<span class="kw">${</span>nome<span class="kw">}</span> tem <span class="kw">${</span>idade<span class="kw">}</span>`</span>);
+}</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- SPREAD & REST -->
+      <div class="section js-section" id="spread">
+        <div class="section-title">Spread & Rest <span class="tag tag-es6">ES6</span></div>
+        <pre><code><span class="cm">// Spread: expande</span>
+<span class="kw">const</span> a = [<span class="num">1</span>, <span class="num">2</span>];
+<span class="kw">const</span> b = [...a, <span class="num">3</span>, <span class="num">4</span>];   <span class="cm">// [1, 2, 3, 4]</span>
+Math.<span class="fn">max</span>(...a);             <span class="cm">// 2</span>
+
+<span class="cm">// Clonar array/objeto</span>
+<span class="kw">const</span> copia = [...original];
+<span class="kw">const</span> novoObj = { ...obj, extra: <span class="kw">true</span> };
+
+<span class="cm">// Rest: coleta o resto</span>
+<span class="kw">const</span> [primeiro, ...resto] = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>];
+<span class="cm">// primeiro = 1, resto = [2, 3, 4]</span></code></pre>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- PROMISES -->
+      <div class="section js-section" id="promises">
+        <div class="section-title">Promises <span class="tag tag-es6">ES6</span></div>
+        <p class="section-desc">Representam um valor que pode estar disponível agora, no futuro, ou nunca. Base do JavaScript assíncrono.</p>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">Criar & Encadear</div>
+            <pre><code><span class="kw">const</span> p = <span class="kw">new</span> <span class="fn">Promise</span>((resolve, reject) => {
+  <span class="kw">if</span> (ok) resolve(<span class="str">"sucesso"</span>);
+  <span class="kw">else</span>   reject(<span class="kw">new</span> <span class="fn">Error</span>(<span class="str">"falha"</span>));
+});
+
+p
+  .<span class="met">then</span>(val => console.<span class="fn">log</span>(val))
+  .<span class="met">catch</span>(err => console.<span class="fn">error</span>(err))
+  .<span class="met">finally</span>(() => console.<span class="fn">log</span>(<span class="str">"fim"</span>));</code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">Promise.all / race / allSettled</div>
+            <pre><code><span class="cm">// Espera TODOS resolverem</span>
+Promise.<span class="fn">all</span>([p1, p2, p3])
+  .<span class="met">then</span>(([r1, r2, r3]) => { ... });
+
+<span class="cm">// O primeiro que resolver/rejeitar</span>
+Promise.<span class="fn">race</span>([p1, p2]);
+
+<span class="cm">// Todos, independente do resultado</span>
+Promise.<span class="fn">allSettled</span>([p1, p2])
+  .<span class="met">then</span>(results => results.<span class="met">forEach</span>(r =>
+    console.<span class="fn">log</span>(r.status) <span class="cm">// "fulfilled" | "rejected"</span>
+  ));</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- ASYNC AWAIT -->
+      <div class="section js-section" id="async">
+        <div class="section-title">Async / Await <span class="tag tag-new">ES2017</span></div>
+        <p class="section-desc">Sintaxe que torna código assíncrono legível como síncrono. Sempre retorna uma Promise.</p>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">Padrão básico</div>
+            <pre><code><span class="kw">async function</span> <span class="fn">buscarUsuario</span>(id) {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> res  = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`/api/users/<span class="kw">${</span>id<span class="kw">}</span>`</span>);
+    <span class="kw">const</span> data = <span class="kw">await</span> res.<span class="fn">json</span>();
+    <span class="kw">return</span> data;
+  } <span class="kw">catch</span> (err) {
+    console.<span class="fn">error</span>(<span class="str">"Erro:"</span>, err);
+  }
+}</code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">Paralelo com await</div>
+            <pre><code><span class="kw">async function</span> <span class="fn">carregarTudo</span>() {
+  <span class="cm">// Dispara ambas ao mesmo tempo</span>
+  <span class="kw">const</span> [users, posts] = <span class="kw">await</span> Promise.<span class="fn">all</span>([
+    <span class="fn">fetch</span>(<span class="str">"/api/users"</span>).<span class="met">then</span>(r => r.<span class="fn">json</span>()),
+    <span class="fn">fetch</span>(<span class="str">"/api/posts"</span>).<span class="met">then</span>(r => r.<span class="fn">json</span>()),
+  ]);
+  <span class="kw">return</span> { users, posts };
+}</code></pre>
+          </div>
+        </div>
+        <div class="note note-warn">
+          <strong>Atenção:</strong> <code>await</code> só pode ser usado dentro de funções <code>async</code>. No top-level de módulos ES2022+ é permitido diretamente.
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- FETCH -->
+      <div class="section js-section" id="fetch">
+        <div class="section-title">Fetch API</div>
+        <p class="section-desc">API nativa para requisições HTTP. Será importante comparar com jQuery AJAX depois.</p>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">GET</div>
+            <pre><code><span class="kw">const</span> res  = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">"https://api.exemplo.com/dados"</span>);
+<span class="kw">const</span> data = <span class="kw">await</span> res.<span class="fn">json</span>();
+
+<span class="cm">// Verificar status</span>
+<span class="kw">if</span> (!res.ok) <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">`HTTP <span class="kw">${</span>res.status<span class="kw">}</span>`</span>);</code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">POST com JSON</div>
+            <pre><code><span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">"/api/users"</span>, {
+  method: <span class="str">"POST"</span>,
+  headers: { <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span> },
+  body: JSON.<span class="fn">stringify</span>({ nome: <span class="str">"Ana"</span>, idade: <span class="num">25</span> })
+});
+<span class="kw">const</span> novo = <span class="kw">await</span> res.<span class="fn">json</span>();</code></pre>
+          </div>
+        </div>
+        <div class="note note-info">
+          <strong>Info:</strong> O jQuery surgiu antes do Fetch existir. Sua API <code>$.ajax()</code> resolveu o mesmo problema de forma mais simples e cross-browser. Hoje os dois coexistem.
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- DOM -->
+      <div class="section js-section" id="dom">
+        <div class="section-title">Manipulação DOM</div>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">Selecionar Elementos</div>
+            <pre><code><span class="cm">// Um elemento</span>
+document.<span class="fn">querySelector</span>(<span class="str">".btn"</span>);
+document.<span class="fn">getElementById</span>(<span class="str">"main"</span>);
+
+<span class="cm">// Vários (NodeList)</span>
+document.<span class="fn">querySelectorAll</span>(<span class="str">"li"</span>);
+
+<span class="cm">// Converter para Array</span>
+[...<span class="fn">document.querySelectorAll</span>(<span class="str">"li"</span>)]
+  .<span class="met">map</span>(el => el.textContent);</code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">Criar & Modificar</div>
+            <pre><code><span class="kw">const</span> el = document.<span class="fn">createElement</span>(<span class="str">"div"</span>);
+el.textContent = <span class="str">"Olá"</span>;
+el.classList.<span class="fn">add</span>(<span class="str">"ativo"</span>);
+el.setAttribute(<span class="str">"data-id"</span>, <span class="str">"42"</span>);
+
+document.body.<span class="fn">appendChild</span>(el);
+
+<span class="cm">// innerHTML (cuidado com XSS)</span>
+el.innerHTML = <span class="str">"&lt;strong&gt;Bold&lt;/strong&gt;"</span>;</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- EVENTOS -->
+      <div class="section js-section" id="eventos">
+        <div class="section-title">Eventos</div>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">addEventListener</div>
+            <pre><code><span class="kw">const</span> btn = document.<span class="fn">querySelector</span>(<span class="str">"#btn"</span>);
+
+btn.<span class="fn">addEventListener</span>(<span class="str">"click"</span>, (e) => {
+  e.<span class="fn">preventDefault</span>(); <span class="cm">// bloqueia comportamento padrão</span>
+  console.<span class="fn">log</span>(<span class="str">"clicado"</span>, e.target);
+});
+
+<span class="cm">// Remover</span>
+<span class="kw">const</span> handler = () => console.<span class="fn">log</span>(<span class="str">"ok"</span>);
+btn.<span class="fn">addEventListener</span>(<span class="str">"click"</span>, handler);
+btn.<span class="fn">removeEventListener</span>(<span class="str">"click"</span>, handler);</code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">Delegação de Eventos</div>
+            <pre><code><span class="cm">// Ouvir em pai para capturar filhos dinâmicos</span>
+document.<span class="fn">addEventListener</span>(<span class="str">"click"</span>, (e) => {
+  <span class="kw">if</span> (e.target.<span class="met">matches</span>(<span class="str">".item"</span>)) {
+    console.<span class="fn">log</span>(<span class="str">"item clicado:"</span>, e.target);
+  }
+});
+
+<span class="cm">// Eventos comuns:</span>
+<span class="cm">// click, input, change, submit</span>
+<span class="cm">// keydown, keyup, mouseover</span>
+<span class="cm">// DOMContentLoaded, load, resize</span></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- MÓDULOS -->
+      <div class="section js-section" id="modulos">
+        <div class="section-title">Módulos ES6 <span class="tag tag-es6">ES6</span></div>
+        <div class="cards">
+          <div class="card js-card">
+            <div class="card-title">export</div>
+            <pre><code><span class="cm">// utils.js</span>
+<span class="kw">export const</span> PI = <span class="num">3.14159</span>;
+
+<span class="kw">export function</span> <span class="fn">dobrar</span>(n) {
+  <span class="kw">return</span> n * <span class="num">2</span>;
+}
+
+<span class="kw">export default function</span> <span class="fn">principal</span>() { ... }
+<span class="cm">// default = exportação principal do arquivo</span></code></pre>
+          </div>
+          <div class="card js-card">
+            <div class="card-title">import</div>
+            <pre><code><span class="cm">// Importações nomeadas</span>
+<span class="kw">import</span> { PI, dobrar } <span class="kw">from</span> <span class="str">"./utils.js"</span>;
+
+<span class="cm">// Default</span>
+<span class="kw">import</span> principal <span class="kw">from</span> <span class="str">"./utils.js"</span>;
+
+<span class="cm">// Renomear</span>
+<span class="kw">import</span> { dobrar <span class="kw">as</span> x2 } <span class="kw">from</span> <span class="str">"./utils.js"</span>;
+
+<span class="cm">// Tudo</span>
+<span class="kw">import</span> * <span class="kw">as</span> utils <span class="kw">from</span> <span class="str">"./utils.js"</span>;</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- CLASSES -->
+      <div class="section js-section" id="classes">
+        <div class="section-title">Classes <span class="tag tag-es6">ES6</span></div>
+        <pre><code><span class="kw">class</span> Animal {
+  <span class="cm">// Campo privado (ES2022)</span>
+  #nome;
+
+  <span class="fn">constructor</span>(nome, tipo) {
+    <span class="kw">this</span>.#nome = nome;
+    <span class="kw">this</span>.tipo = tipo;
+  }
+
+  <span class="cm">// Getter</span>
+  <span class="kw">get</span> <span class="fn">nome</span>() { <span class="kw">return</span> <span class="kw">this</span>.#nome; }
+
+  <span class="fn">falar</span>() {
+    <span class="kw">return</span> <span class="str">`<span class="kw">${</span><span class="kw">this</span>.#nome<span class="kw">}</span> faz som`</span>;
+  }
+
+  <span class="cm">// Método estático</span>
+  <span class="kw">static</span> <span class="fn">criar</span>(nome) { <span class="kw">return new</span> <span class="fn">Animal</span>(nome, <span class="str">"?"</span>); }
+}
+
+<span class="kw">class</span> Cachorro <span class="kw">extends</span> Animal {
+  <span class="fn">falar</span>() { <span class="kw">return</span> <span class="str">`<span class="kw">${</span><span class="kw">super</span>.<span class="fn">falar</span>()<span class="kw">}</span>: Au!`</span>; }
+}
+
+<span class="kw">const</span> dog = <span class="kw">new</span> <span class="fn">Cachorro</span>(<span class="str">"Rex"</span>, <span class="str">"canino"</span>);
+dog.<span class="fn">falar</span>(); <span class="cm">// "Rex faz som: Au!"</span></code></pre>
+        <div class="note note-tip">
+          <strong>Pronto!</strong> Você tem a base do JavaScript Moderno. Agora vá para a aba <strong>jQuery</strong> e veja como tudo isso se conecta ao dia a dia de quem usa a biblioteca.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== JQUERY PAGE ===== -->
+    <div class="page" id="page-jq">
+      <div class="hero">
+        <div class="hero-badge badge-jq">Documentação</div>
+        <h1>jQuery</h1>
+        <p>Referência focada no uso real: seletores, DOM, eventos e — principalmente — requisições AJAX para o seu dia a dia no trabalho.</p>
+      </div>
+
+      <!-- INTRO -->
+      <div class="section jq-section" id="jq-intro">
+        <div class="section-title">O que é jQuery?</div>
+        <p class="section-desc">jQuery é uma biblioteca JavaScript criada em 2006 que simplifica manipulação de DOM, eventos e AJAX com uma API consistente e cross-browser. Sua filosofia é <em>"write less, do more"</em>.</p>
+        <div class="cards">
+          <div class="card jq-card">
+            <div class="card-title">Incluir no projeto</div>
+            <pre><code><span class="cm">&lt;!-- Via CDN (mais comum em projetos legados) --&gt;</span>
+&lt;<span class="kw">script</span> src=<span class="str">"https://code.jquery.com/jquery-3.7.1.min.js"</span>&gt;&lt;/<span class="kw">script</span>&gt;
+
+<span class="cm">&lt;!-- Via npm --&gt;</span>
+<span class="cm">// npm install jquery</span>
+<span class="kw">import</span> $ <span class="kw">from</span> <span class="str">"jquery"</span>;</code></pre>
+          </div>
+          <div class="card jq-card">
+            <div class="card-title">DOM Ready — Ponto de entrada</div>
+            <pre><code><span class="cm">// Aguarda o DOM estar pronto</span>
+$(<span class="fn">function</span>() {
+  <span class="cm">// todo o seu código jQuery aqui</span>
+  console.<span class="fn">log</span>(<span class="str">"DOM pronto!"</span>);
+});
+
+<span class="cm">// Equivalente mais verboso:</span>
+$(document).<span class="met">ready</span>(<span class="kw">function</span>() { ... });</code></pre>
+          </div>
+        </div>
+        <div class="note note-info">
+          <strong>O símbolo $</strong> é apenas um alias para a função <code>jQuery()</code>. Você pode usar <code>jQuery(...)</code> no lugar de <code>$(...)</code> em qualquer chamada.
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- SELETORES -->
+      <div class="section jq-section" id="jq-selectors">
+        <div class="section-title">Seletores</div>
+        <p class="section-desc">jQuery usa a mesma sintaxe do CSS para selecionar elementos. Retorna um <em>jQuery object</em> (array-like com métodos extras).</p>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Seletor</th><th>Seleciona</th></tr>
+            <tr><td><code>$("p")</code></td><td>Todos os &lt;p&gt;</td></tr>
+            <tr><td><code>$("#meuId")</code></td><td>Elemento com id="meuId"</td></tr>
+            <tr><td><code>$(".minhaClasse")</code></td><td>Elementos com essa classe</td></tr>
+            <tr><td><code>$("ul li")</code></td><td>li dentro de ul (descendente)</td></tr>
+            <tr><td><code>$("ul > li")</code></td><td>li filho direto de ul</td></tr>
+            <tr><td><code>$("input[type='text']")</code></td><td>Inputs de texto</td></tr>
+            <tr><td><code>$("li:first")</code></td><td>Primeiro li</td></tr>
+            <tr><td><code>$("li:last")</code></td><td>Último li</td></tr>
+            <tr><td><code>$("li:eq(2)")</code></td><td>Li de índice 2 (0-based)</td></tr>
+            <tr><td><code>$("li:even")</code></td><td>Li de índice par</td></tr>
+            <tr><td><code>$("p:not(.ativo)")</code></td><td>p sem a classe .ativo</td></tr>
+            <tr><td><code>$(this)</code></td><td>Elemento atual no contexto do handler</td></tr>
+          </table>
+        </div>
+        <pre><code><span class="cm">// jQuery object — múltiplos elementos</span>
+<span class="kw">const</span> itens = $(<span class="str">"li"</span>);
+itens.<span class="met">length</span>;         <span class="cm">// quantos</span>
+itens.<span class="fn">eq</span>(<span class="num">0</span>);           <span class="cm">// jQuery object do 1º</span>
+itens.<span class="fn">get</span>(<span class="num">0</span>);           <span class="cm">// DOM element nativo do 1º</span>
+itens[<span class="num">0</span>];              <span class="cm">// idem</span></code></pre>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- TRAVERSAL -->
+      <div class="section jq-section" id="jq-traversal">
+        <div class="section-title">Traversal — Navegar no DOM</div>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Método</th><th>O que faz</th></tr>
+            <tr><td><code>.parent()</code></td><td>Elemento pai imediato</td></tr>
+            <tr><td><code>.parents(sel)</code></td><td>Todos os ancestrais (filtrados)</td></tr>
+            <tr><td><code>.children(sel)</code></td><td>Filhos diretos (filtrados)</td></tr>
+            <tr><td><code>.find(sel)</code></td><td>Descendentes que casam com seletor</td></tr>
+            <tr><td><code>.siblings(sel)</code></td><td>Irmãos</td></tr>
+            <tr><td><code>.next() / .prev()</code></td><td>Próximo/anterior irmão</td></tr>
+            <tr><td><code>.closest(sel)</code></td><td>Ancestral mais próximo que casa</td></tr>
+            <tr><td><code>.filter(sel)</code></td><td>Filtra o conjunto atual</td></tr>
+            <tr><td><code>.not(sel)</code></td><td>Remove do conjunto</td></tr>
+            <tr><td><code>.first() / .last()</code></td><td>Primeiro/último do conjunto</td></tr>
+          </table>
+        </div>
+        <pre><code>$(<span class="str">"ul"</span>).<span class="met">find</span>(<span class="str">"li.ativo"</span>)    <span class="cm">// li.ativo dentro de ul</span>
+$(<span class="str">"#item"</span>).<span class="met">closest</span>(<span class="str">".card"</span>) <span class="cm">// ancestral .card mais próximo</span>
+$(<span class="str">"li"</span>).<span class="met">filter</span>(<span class="str">":even"</span>)      <span class="cm">// apenas pares</span>
+$(<span class="str">"li"</span>).<span class="met">first</span>().<span class="met">next</span>()       <span class="cm">// segundo li</span></code></pre>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- DOM -->
+      <div class="section jq-section" id="jq-dom">
+        <div class="section-title">Manipulação DOM</div>
+        <div class="cards">
+          <div class="card jq-card">
+            <div class="card-title">Ler & Escrever conteúdo</div>
+            <pre><code><span class="cm">// .html() → innerHTML</span>
+$(<span class="str">"#box"</span>).<span class="fn">html</span>();              <span class="cm">// ler</span>
+$(<span class="str">"#box"</span>).<span class="fn">html</span>(<span class="str">"&lt;b&gt;OK&lt;/b&gt;"</span>);   <span class="cm">// escrever</span>
+
+<span class="cm">// .text() → textContent (mais seguro)</span>
+$(<span class="str">"p"</span>).<span class="fn">text</span>(<span class="str">"Novo texto"</span>);
+
+<span class="cm">// .val() → value de inputs</span>
+$(<span class="str">"#email"</span>).<span class="fn">val</span>();             <span class="cm">// ler</span>
+$(<span class="str">"#email"</span>).<span class="fn">val</span>(<span class="str">"a@b.com"</span>);   <span class="cm">// escrever</span></code></pre>
+          </div>
+          <div class="card jq-card">
+            <div class="card-title">Inserir & Remover</div>
+            <pre><code><span class="cm">// Inserir</span>
+$(<span class="str">"#lista"</span>).<span class="fn">append</span>(<span class="str">"&lt;li&gt;Item&lt;/li&gt;"</span>);  <span class="cm">// no fim</span>
+$(<span class="str">"#lista"</span>).<span class="fn">prepend</span>(<span class="str">"&lt;li&gt;1º&lt;/li&gt;"</span>);  <span class="cm">// no início</span>
+$(<span class="str">"&lt;li&gt;X&lt;/li&gt;"</span>).<span class="fn">appendTo</span>(<span class="str">"#lista"</span>);
+$(<span class="str">"#a"</span>).<span class="fn">after</span>(<span class="str">"&lt;p&gt;Depois&lt;/p&gt;"</span>);      <span class="cm">// após o elemento</span>
+$(<span class="str">"#a"</span>).<span class="fn">before</span>(<span class="str">"&lt;p&gt;Antes&lt;/p&gt;"</span>);
+
+<span class="cm">// Remover</span>
+$(<span class="str">"#item"</span>).<span class="fn">remove</span>();   <span class="cm">// remove do DOM</span>
+$(<span class="str">"#item"</span>).<span class="fn">empty</span>();    <span class="cm">// esvazia o conteúdo</span>
+
+<span class="cm">// Clonar</span>
+$(<span class="str">"#card"</span>).<span class="fn">clone</span>().<span class="fn">appendTo</span>(<span class="str">"#container"</span>);</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- CSS -->
+      <div class="section jq-section" id="jq-css">
+        <div class="section-title">CSS & Classes</div>
+        <div class="cards">
+          <div class="card jq-card">
+            <div class="card-title">Classes</div>
+            <pre><code>$(<span class="str">"#el"</span>).<span class="fn">addClass</span>(<span class="str">"ativo"</span>);
+$(<span class="str">"#el"</span>).<span class="fn">removeClass</span>(<span class="str">"ativo"</span>);
+$(<span class="str">"#el"</span>).<span class="fn">toggleClass</span>(<span class="str">"ativo"</span>);    <span class="cm">// alterna</span>
+$(<span class="str">"#el"</span>).<span class="fn">hasClass</span>(<span class="str">"ativo"</span>);      <span class="cm">// → boolean</span>
+
+<span class="cm">// Múltiplas classes</span>
+$(<span class="str">"#el"</span>).<span class="fn">addClass</span>(<span class="str">"a b c"</span>);</code></pre>
+          </div>
+          <div class="card jq-card">
+            <div class="card-title">.css()</div>
+            <pre><code><span class="cm">// Ler</span>
+$(<span class="str">"#el"</span>).<span class="fn">css</span>(<span class="str">"color"</span>);
+
+<span class="cm">// Escrever</span>
+$(<span class="str">"#el"</span>).<span class="fn">css</span>(<span class="str">"color"</span>, <span class="str">"red"</span>);
+
+<span class="cm">// Múltiplas propriedades</span>
+$(<span class="str">"#el"</span>).<span class="fn">css</span>({
+  color: <span class="str">"white"</span>,
+  background: <span class="str">"#333"</span>,
+  fontSize: <span class="str">"16px"</span>
+});</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- ATRIBUTOS -->
+      <div class="section jq-section" id="jq-attr">
+        <div class="section-title">Atributos & Data</div>
+        <div class="cards">
+          <div class="card jq-card">
+            <div class="card-title">.attr() / .prop()</div>
+            <pre><code><span class="cm">// attr → atributos HTML</span>
+$(<span class="str">"a"</span>).<span class="fn">attr</span>(<span class="str">"href"</span>);
+$(<span class="str">"img"</span>).<span class="fn">attr</span>(<span class="str">"src"</span>, <span class="str">"novo.jpg"</span>);
+$(<span class="str">"#el"</span>).<span class="fn">removeAttr</span>(<span class="str">"disabled"</span>);
+
+<span class="cm">// prop → propriedades DOM (checked, disabled...)</span>
+$(<span class="str">"#cb"</span>).<span class="fn">prop</span>(<span class="str">"checked"</span>);          <span class="cm">// boolean</span>
+$(<span class="str">"#cb"</span>).<span class="fn">prop</span>(<span class="str">"checked"</span>, <span class="kw">true</span>);   <span class="cm">// setar</span></code></pre>
+          </div>
+          <div class="card jq-card">
+            <div class="card-title">.data() — data-* attributes</div>
+            <pre><code><span class="cm">&lt;!-- HTML --&gt;</span>
+<span class="cm">&lt;div id="item" data-id="42" data-nome="Ana"&gt;&lt;/div&gt;</span>
+
+<span class="cm">// Ler</span>
+$(<span class="str">"#item"</span>).<span class="fn">data</span>(<span class="str">"id"</span>);    <span class="cm">// 42 (number)</span>
+$(<span class="str">"#item"</span>).<span class="fn">data</span>(<span class="str">"nome"</span>);  <span class="cm">// "Ana"</span>
+
+<span class="cm">// Escrever (em memória, não no atributo)</span>
+$(<span class="str">"#item"</span>).<span class="fn">data</span>(<span class="str">"extra"</span>, <span class="str">"valor"</span>);</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- EVENTOS -->
+      <div class="section jq-section" id="jq-eventos">
+        <div class="section-title">Eventos</div>
+        <div class="cards">
+          <div class="card jq-card">
+            <div class="card-title">Bindando eventos</div>
+            <pre><code><span class="cm">// .on() — forma moderna</span>
+$(<span class="str">"#btn"</span>).<span class="fn">on</span>(<span class="str">"click"</span>, <span class="kw">function</span>() {
+  console.<span class="fn">log</span>(<span class="str">"clicado"</span>);
+});
+
+<span class="cm">// Atalhos (mesma coisa)</span>
+$(<span class="str">"#btn"</span>).<span class="fn">click</span>(<span class="kw">function</span>() { ... });
+$(<span class="str">"input"</span>).<span class="fn">change</span>(<span class="kw">function</span>() { ... });
+$(<span class="str">"form"</span>).<span class="fn">submit</span>(<span class="kw">function</span>(e) {
+  e.<span class="fn">preventDefault</span>();
+});
+
+<span class="cm">// Remover</span>
+$(<span class="str">"#btn"</span>).<span class="fn">off</span>(<span class="str">"click"</span>);</code></pre>
+          </div>
+          <div class="card jq-card">
+            <div class="card-title">Múltiplos eventos</div>
+            <pre><code><span class="cm">// Vários eventos, mesmo handler</span>
+$(<span class="str">"input"</span>).<span class="fn">on</span>(<span class="str">"keyup change paste"</span>, <span class="kw">function</span>() {
+  console.<span class="fn">log</span>(<span class="str">"mudou"</span>);
+});
+
+<span class="cm">// Objeto mapeado</span>
+$(<span class="str">"#el"</span>).<span class="fn">on</span>({
+  mouseenter: <span class="kw">function</span>() { ... },
+  mouseleave: <span class="kw">function</span>() { ... }
+});
+
+<span class="cm">// Disparar evento programaticamente</span>
+$(<span class="str">"#btn"</span>).<span class="fn">trigger</span>(<span class="str">"click"</span>);</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- ON - DELEGAÇÃO -->
+      <div class="section jq-section" id="jq-on">
+        <div class="section-title">Delegação de Eventos com .on()</div>
+        <p class="section-desc">Essencial para elementos criados dinamicamente (via AJAX, por exemplo). O evento é registrado no pai e filtrado pelo seletor filho.</p>
+        <pre><code><span class="cm">// Sintaxe de delegação: $(pai).on(evento, seletorFilho, handler)</span>
+
+<span class="cm">// Sem delegação — NÃO captura elementos futuros:</span>
+$(<span class="str">".item"</span>).<span class="fn">on</span>(<span class="str">"click"</span>, <span class="kw">function</span>() { ... }); <span class="cm">// ✗</span>
+
+<span class="cm">// COM delegação — captura elementos futuros:</span>
+$(<span class="str">"#lista"</span>).<span class="fn">on</span>(<span class="str">"click"</span>, <span class="str">".item"</span>, <span class="kw">function</span>() {
+  console.<span class="fn">log</span>(<span class="str">"item:"</span>, $(<span class="kw">this</span>).<span class="fn">text</span>());
+});
+
+<span class="cm">// Delegação no document (mais ampla)</span>
+$(document).<span class="fn">on</span>(<span class="str">"click"</span>, <span class="str">".btn-excluir"</span>, <span class="kw">function</span>() {
+  $(<span class="kw">this</span>).<span class="met">closest</span>(<span class="str">".card"</span>).<span class="fn">remove</span>();
+});</code></pre>
+        <div class="note note-tip">
+          <strong>Dica prática:</strong> Sempre que adicionar elementos via AJAX e quiser ouvi-los, use delegação. É um dos padrões mais usados no dia a dia com jQuery.
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- AJAX -->
+      <div class="section jq-section" id="jq-ajax">
+        <div class="section-title">$.ajax() — Requisições Completas <span class="tag tag-ajax">AJAX</span></div>
+        <p class="section-desc">O coração do jQuery para comunicação com o servidor. Altamente configurável.</p>
+        <div class="cards">
+          <div class="card jq-card">
+            <div class="card-title">GET básico</div>
+            <pre><code>$.<span class="fn">ajax</span>({
+  url: <span class="str">"/api/usuarios"</span>,
+  method: <span class="str">"GET"</span>,
+  dataType: <span class="str">"json"</span>,
+  success: <span class="kw">function</span>(data) {
+    console.<span class="fn">log</span>(data);
+  },
+  error: <span class="kw">function</span>(xhr, status, err) {
+    console.<span class="fn">error</span>(err);
+  }
+});</code></pre>
+          </div>
+          <div class="card jq-card">
+            <div class="card-title">POST com JSON</div>
+            <pre><code>$.<span class="fn">ajax</span>({
+  url: <span class="str">"/api/usuarios"</span>,
+  method: <span class="str">"POST"</span>,
+  contentType: <span class="str">"application/json"</span>,
+  data: JSON.<span class="fn">stringify</span>({ nome: <span class="str">"Ana"</span>, idade: <span class="num">25</span> }),
+  dataType: <span class="str">"json"</span>,
+  success: <span class="kw">function</span>(resp) {
+    console.<span class="fn">log</span>(<span class="str">"criado:"</span>, resp);
+  },
+  error: <span class="kw">function</span>(xhr) {
+    console.<span class="fn">error</span>(xhr.responseJSON);
+  }
+});</code></pre>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Opção</th><th>Tipo</th><th>Descrição</th></tr>
+            <tr><td><code>url</code></td><td>string</td><td>Endpoint da requisição</td></tr>
+            <tr><td><code>method</code></td><td>string</td><td>GET, POST, PUT, DELETE, PATCH</td></tr>
+            <tr><td><code>data</code></td><td>obj/string</td><td>Dados enviados (query string em GET, body em POST)</td></tr>
+            <tr><td><code>dataType</code></td><td>string</td><td>Tipo esperado na resposta: json, html, text, xml</td></tr>
+            <tr><td><code>contentType</code></td><td>string</td><td>Content-Type do corpo enviado. Padrão: application/x-www-form-urlencoded</td></tr>
+            <tr><td><code>headers</code></td><td>obj</td><td>Headers HTTP adicionais (ex: Authorization)</td></tr>
+            <tr><td><code>timeout</code></td><td>number</td><td>Timeout em ms</td></tr>
+            <tr><td><code>success</code></td><td>fn</td><td>Callback de sucesso: fn(data, status, xhr)</td></tr>
+            <tr><td><code>error</code></td><td>fn</td><td>Callback de erro: fn(xhr, status, error)</td></tr>
+            <tr><td><code>complete</code></td><td>fn</td><td>Sempre executado (sucesso ou erro)</td></tr>
+            <tr><td><code>beforeSend</code></td><td>fn</td><td>Executado antes do envio; útil para headers/loading</td></tr>
+            <tr><td><code>async</code></td><td>bool</td><td>Padrão true. false = síncrono (evite!)</td></tr>
+            <tr><td><code>cache</code></td><td>bool</td><td>Padrão true para GET. false adiciona timestamp na URL</td></tr>
+          </table>
+        </div>
+
+        <pre><code><span class="cm">// Exemplo completo com headers e beforeSend</span>
+$.<span class="fn">ajax</span>({
+  url: <span class="str">"/api/pedidos"</span>,
+  method: <span class="str">"POST"</span>,
+  contentType: <span class="str">"application/json"</span>,
+  headers: {
+    <span class="str">"Authorization"</span>: <span class="str">"Bearer "</span> + token,
+    <span class="str">"X-CSRF-Token"</span>: csrfToken
+  },
+  data: JSON.<span class="fn">stringify</span>(payload),
+  dataType: <span class="str">"json"</span>,
+  timeout: <span class="num">10000</span>,
+  beforeSend: <span class="kw">function</span>() {
+    $(<span class="str">"#loading"</span>).<span class="fn">show</span>();
+  },
+  success: <span class="kw">function</span>(data, status, xhr) {
+    console.<span class="fn">log</span>(<span class="str">"Status HTTP:"</span>, xhr.status);
+    renderizarPedido(data);
+  },
+  error: <span class="kw">function</span>(xhr, status, err) {
+    <span class="kw">if</span> (xhr.status === <span class="num">401</span>) redirecionar(<span class="str">"/login"</span>);
+    <span class="kw">else</span> alert(<span class="str">"Erro: "</span> + xhr.responseJSON?.message);
+  },
+  complete: <span class="kw">function</span>() {
+    $(<span class="str">"#loading"</span>).<span class="fn">hide</span>();
+  }
+});</code></pre>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- GET/POST -->
+      <div class="section jq-section" id="jq-get-post">
+        <div class="section-title">$.get() e $.post() — Atalhos <span class="tag tag-ajax">AJAX</span></div>
+        <p class="section-desc">Para casos simples sem configuração avançada.</p>
+        <div class="cards">
+          <div class="card jq-card">
+            <div class="card-title">$.get()</div>
+            <pre><code><span class="cm">// Sintaxe: $.get(url, [params], [success], [dataType])</span>
+
+$.<span class="fn">get</span>(<span class="str">"/api/users"</span>, <span class="kw">function</span>(data) {
+  console.<span class="fn">log</span>(data);
+});
+
+<span class="cm">// Com parâmetros (viram query string)</span>
+$.<span class="fn">get</span>(<span class="str">"/api/users"</span>, { pagina: <span class="num">1</span>, limite: <span class="num">10</span> }, <span class="kw">function</span>(data) {
+  <span class="cm">// GET /api/users?pagina=1&limite=10</span>
+  renderizar(data);
+});</code></pre>
+          </div>
+          <div class="card jq-card">
+            <div class="card-title">$.post()</div>
+            <pre><code><span class="cm">// Sintaxe: $.post(url, [data], [success], [dataType])</span>
+
+$.<span class="fn">post</span>(<span class="str">"/api/login"</span>, {
+  usuario: $(<span class="str">"#usuario"</span>).<span class="fn">val</span>(),
+  senha:   $(<span class="str">"#senha"</span>).<span class="fn">val</span>()
+}, <span class="kw">function</span>(resp) {
+  <span class="cm">// data enviado como x-www-form-urlencoded por padrão</span>
+  console.<span class="fn">log</span>(resp);
+});
+
+<span class="cm">// Para enviar JSON: use $.ajax com contentType</span></code></pre>
+          </div>
+        </div>
+        <div class="note note-warn">
+          <strong>Atenção:</strong> <code>$.post()</code> envia por padrão com <code>application/x-www-form-urlencoded</code>. Se a API espera JSON, use <code>$.ajax()</code> com <code>contentType: "application/json"</code> e <code>JSON.stringify()</code>.
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- $.getJSON -->
+      <div class="section jq-section" id="jq-json">
+        <div class="section-title">$.getJSON() <span class="tag tag-ajax">AJAX</span></div>
+        <p class="section-desc">Atalho para GET que parse automaticamente o retorno como JSON.</p>
+        <pre><code>$.<span class="fn">getJSON</span>(<span class="str">"/api/config"</span>, <span class="kw">function</span>(data) {
+  console.<span class="fn">log</span>(data); <span class="cm">// já é um objeto JS</span>
+});
+
+<span class="cm">// Com parâmetros</span>
+$.<span class="fn">getJSON</span>(<span class="str">"/api/busca"</span>, { q: <span class="str">"produto"</span> }, <span class="kw">function</span>(resultados) {
+  resultados.<span class="met">forEach</span>(<span class="kw">function</span>(item) {
+    $(<span class="str">"#lista"</span>).<span class="fn">append</span>(<span class="str">`&lt;li&gt;<span class="kw">${</span>item.nome<span class="kw">}</span>&lt;/li&gt;`</span>);
+  });
+});</code></pre>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- AJAXSETUP -->
+      <div class="section jq-section" id="jq-ajaxsetup">
+        <div class="section-title">$.ajaxSetup() — Configuração Global <span class="tag tag-ajax">AJAX</span></div>
+        <p class="section-desc">Define padrões para todas as requisições AJAX da página. Ideal para configurar headers de autenticação uma única vez.</p>
+        <pre><code><span class="cm">// Colocar no início da aplicação (DOM Ready)</span>
+$.<span class="fn">ajaxSetup</span>({
+  headers: {
+    <span class="str">"Authorization"</span>: <span class="str">"Bearer "</span> + localStorage.<span class="fn">getItem</span>(<span class="str">"token"</span>),
+    <span class="str">"X-Requested-With"</span>: <span class="str">"XMLHttpRequest"</span>
+  },
+  dataType: <span class="str">"json"</span>,
+  contentType: <span class="str">"application/json"</span>,
+  timeout: <span class="num">15000</span>,
+  error: <span class="kw">function</span>(xhr) {
+    <span class="cm">// Handler global de erros</span>
+    <span class="kw">if</span> (xhr.status === <span class="num">401</span>) window.location = <span class="str">"/login"</span>;
+  }
+});
+
+<span class="cm">// Agora toda chamada herda essas configs</span>
+$.<span class="fn">get</span>(<span class="str">"/api/me"</span>, <span class="kw">function</span>(data) {
+  <span class="cm">// Já usa o header Authorization automaticamente</span>
+});</code></pre>
+        <div class="note note-tip">
+          <strong>Dica:</strong> Use <code>$.ajaxSetup()</code> no arquivo principal e evite repetir headers em cada chamada. É uma prática muito comum em sistemas legados com jQuery.
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- DEFERRED -->
+      <div class="section jq-section" id="jq-deferred">
+        <div class="section-title">Deferred & Promise-like <span class="tag tag-ajax">AJAX</span></div>
+        <p class="section-desc">As funções AJAX do jQuery retornam um objeto <em>jqXHR</em> que implementa a interface Deferred — parecida com Promises modernas.</p>
+        <div class="cards">
+          <div class="card jq-card">
+            <div class="card-title">.done() / .fail() / .always()</div>
+            <pre><code><span class="kw">const</span> req = $.<span class="fn">ajax</span>({ url: <span class="str">"/api/data"</span> });
+
+req
+  .<span class="met">done</span>(<span class="kw">function</span>(data) {
+    console.<span class="fn">log</span>(<span class="str">"sucesso"</span>, data);
+  })
+  .<span class="met">fail</span>(<span class="kw">function</span>(xhr, status, err) {
+    console.<span class="fn">error</span>(<span class="str">"falhou"</span>, err);
+  })
+  .<span class="met">always</span>(<span class="kw">function</span>() {
+    $(<span class="str">"#spinner"</span>).<span class="fn">hide</span>();
+  });</code></pre>
+          </div>
+          <div class="card jq-card">
+            <div class="card-title">$.when() — Paralelo</div>
+            <pre><code><span class="cm">// Equivalente ao Promise.all</span>
+<span class="kw">const</span> r1 = $.<span class="fn">get</span>(<span class="str">"/api/users"</span>);
+<span class="kw">const</span> r2 = $.<span class="fn">get</span>(<span class="str">"/api/posts"</span>);
+
+$.<span class="fn">when</span>(r1, r2).<span class="met">done</span>(<span class="kw">function</span>(res1, res2) {
+  <span class="kw">const</span> users = res1[<span class="num">0</span>]; <span class="cm">// res1 = [data, status, xhr]</span>
+  <span class="kw">const</span> posts = res2[<span class="num">0</span>];
+  console.<span class="fn">log</span>(users, posts);
+});</code></pre>
+          </div>
+        </div>
+        <pre><code><span class="cm">// Encadear com .then() (converte para Promise nativa)</span>
+$.<span class="fn">ajax</span>({ url: <span class="str">"/api/login"</span>, method: <span class="str">"POST"</span>, data: creds })
+  .<span class="met">then</span>(data => $.<span class="fn">ajax</span>({ url: <span class="str">`/api/profile/<span class="kw">${</span>data.id<span class="kw">}</span>`</span> }))
+  .<span class="met">then</span>(perfil => renderizarPerfil(perfil))
+  .<span class="met">catch</span>(err => console.<span class="fn">error</span>(err));</code></pre>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- EACH -->
+      <div class="section jq-section" id="jq-each">
+        <div class="section-title">$.each() e .each()</div>
+        <div class="cards">
+          <div class="card jq-card">
+            <div class="card-title">.each() — iterar elementos jQuery</div>
+            <pre><code>$(<span class="str">"li"</span>).<span class="fn">each</span>(<span class="kw">function</span>(index, element) {
+  <span class="cm">// this = DOM element, $(this) = jQuery object</span>
+  console.<span class="fn">log</span>(index, $(<span class="kw">this</span>).<span class="fn">text</span>());
+  
+  <span class="kw">if</span> (index === <span class="num">2</span>) <span class="kw">return</span> <span class="kw">false</span>; <span class="cm">// break</span>
+});</code></pre>
+          </div>
+          <div class="card jq-card">
+            <div class="card-title">$.each() — iterar arrays e objetos</div>
+            <pre><code><span class="cm">// Array</span>
+$.<span class="fn">each</span>([<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>], <span class="kw">function</span>(i, val) {
+  console.<span class="fn">log</span>(i, val);
+});
+
+<span class="cm">// Objeto</span>
+$.<span class="fn">each</span>({ nome: <span class="str">"Ana"</span>, idade: <span class="num">30</span> }, <span class="kw">function</span>(chave, val) {
+  console.<span class="fn">log</span>(chave, val);
+});</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- UTILS -->
+      <div class="section jq-section" id="jq-utils">
+        <div class="section-title">Utilitários Úteis</div>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Método</th><th>O que faz</th></tr>
+            <tr><td><code>$.trim(str)</code></td><td>Remove espaços do início/fim</td></tr>
+            <tr><td><code>$.isArray(val)</code></td><td>Verifica se é array</td></tr>
+            <tr><td><code>$.isFunction(val)</code></td><td>Verifica se é função</td></tr>
+            <tr><td><code>$.type(val)</code></td><td>Retorna tipo como string</td></tr>
+            <tr><td><code>$.parseJSON(str)</code></td><td>Parse JSON (use JSON.parse moderno)</td></tr>
+            <tr><td><code>$.extend(target, src)</code></td><td>Merge de objetos (deep com true)</td></tr>
+            <tr><td><code>$.inArray(val, arr)</code></td><td>indexOf para arrays (-1 se não achar)</td></tr>
+            <tr><td><code>$.map(arr, fn)</code></td><td>Transforma array (como Array.map)</td></tr>
+            <tr><td><code>$.grep(arr, fn)</code></td><td>Filtra array (como Array.filter)</td></tr>
+            <tr><td><code>$.now()</code></td><td>Timestamp atual (Date.now())</td></tr>
+          </table>
+        </div>
+        <pre><code><span class="cm">// $.extend — muito usado para merge de configurações</span>
+<span class="kw">const</span> padrao = { cor: <span class="str">"azul"</span>, tamanho: <span class="num">12</span>, bold: <span class="kw">false</span> };
+<span class="kw">const</span> opcoes = { cor: <span class="str">"vermelho"</span> };
+<span class="kw">const</span> final  = $.<span class="fn">extend</span>({}, padrao, opcoes);
+<span class="cm">// { cor: "vermelho", tamanho: 12, bold: false }</span>
+
+<span class="cm">// Deep merge</span>
+$.<span class="fn">extend</span>(<span class="kw">true</span>, {}, obj1, obj2);</code></pre>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- PLUGINS -->
+      <div class="section jq-section" id="jq-plugins">
+        <div class="section-title">Criando um Plugin jQuery</div>
+        <p class="section-desc">Extender o jQuery com métodos customizados via <code>$.fn</code>.</p>
+        <pre><code><span class="cm">// Padrão de plugin jQuery</span>
+(function($) {
+
+  $.<span class="met">fn</span>.<span class="fn">destacar</span> = function(cor) {
+    cor = cor || <span class="str">"yellow"</span>;
+    <span class="kw">return</span> <span class="kw">this</span>.<span class="fn">each</span>(function() {   <span class="cm">// return this para encadeamento</span>
+      $(<span class="kw">this</span>).<span class="fn">css</span>(<span class="str">"background"</span>, cor);
+    });
+  };
+
+}($));
+
+<span class="cm">// Uso</span>
+$(<span class="str">"p"</span>).<span class="fn">destacar</span>(<span class="str">"#ffffaa"</span>).<span class="fn">addClass</span>(<span class="str">"ativo"</span>); <span class="cm">// encadeável</span></code></pre>
+
+        <hr class="section-sep">
+
+        <div class="note note-tip" style="margin-top: 1.5rem;">
+          <strong>Resumo prático para o trabalho:</strong><br><br>
+          Para o dia a dia, os métodos que você mais vai usar são: <code>$(seletor)</code> para selecionar, <code>.on()</code> para eventos, <code>$.ajax()</code> / <code>$.get()</code> / <code>$.post()</code> para requisições, <code>.val()</code> / <code>.text()</code> / <code>.html()</code> para ler/escrever dados, e <code>.done()</code> / <code>.fail()</code> para tratar respostas. Com o <code>$.ajaxSetup()</code> você configura autenticação globalmente e economiza muito código repetido.
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function switchTab(tab) {
+    const pages    = document.querySelectorAll('.page');
+    const sidebars = document.querySelectorAll('.sidebar');
+    const buttons  = document.querySelectorAll('.tab-btn');
+
+    pages.forEach(p => p.classList.remove('active'));
+    sidebars.forEach(s => s.style.display = 'none');
+    buttons.forEach(b => { b.classList.remove('active-js'); b.classList.remove('active-jq'); });
+
+    document.getElementById('page-' + tab).classList.add('active');
+    document.getElementById('sidebar-' + tab).style.display = 'block';
+
+    const btn = buttons[tab === 'js' ? 0 : 1];
+    btn.classList.add('active-' + tab);
+  }
+
+  // Highlight sidebar links on scroll
+  const observerOptions = { rootMargin: '-60px 0px -80% 0px', threshold: 0 };
+
+  function activateLinks(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        document.querySelectorAll('.sidebar a').forEach(a => {
+          a.classList.remove('js-active-link', 'jq-active-link');
+          if (a.getAttribute('href') === '#' + id) {
+            const cls = id.startsWith('jq-') ? 'jq-active-link' : 'js-active-link';
+            a.classList.add(cls);
+          }
+        });
+      }
+    });
+  }
+
+  const observer = new IntersectionObserver(activateLinks, observerOptions);
+  document.querySelectorAll('.section').forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
